@@ -34,9 +34,8 @@ for movie in *.mp4; do
 	echo "Making thumbnails..."
 	ffmpeg -loglevel panic -i "$movie" -q:v 2 -vf scale=400:-1 -f image2 temp/%d.jpg
 
-	#find start and end
-	echo "Finding start and end frames..."
-	
+	#Set a search range for the start and end points
+	echo "Setting search ranges for start and end frames..."
 	totalFrames=$(ls -l temp/ | wc -l)
 	totalFrames=$(expr $totalFrames - 1)
 	startRange=$(echo "scale=0; ($totalFrames*.20)/1" | bc)
@@ -61,7 +60,7 @@ for movie in *.mp4; do
 		metric=$(compare -metric MAE "$frame" tests/end.jpg null: 2>&1 | awk '{ print $1 }')
 		metric=$(echo "scale=0; $metric/1" | bc)
 		if [[ "$metric" -lt 1000 ]]; then
-			#Subtract a couple of frames to deal with ffmpeg's inaccuracy and convert to timecode in format ss.xx
+			#Convert to timecode in format ss.xx
 			adjustedEnd=$(echo "scale=2; ($i - 2)/(24000/1001)" | bc)
 			echo "end $adjustedEnd" >> "$log"
 		fi
