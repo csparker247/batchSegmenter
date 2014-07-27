@@ -17,11 +17,11 @@ findMatch () {
 	if [[ "$metric" -lt 1000 ]]; then 
 		if [[ "$kind" == "start" ]]; then
 			#Add 1 (to get frame number of Start Frame) and convert to timecode in format ss.xxx
-			localStart=$(echo "scale=2; ($i + 1)/(24000/1001)" | bc)
+			localStart=$(echo "scale=3; ($i + 1)/(24000/1001)" | bc)
 			echo $localStart
 		elif [[ "$kind" == "end" ]]; then
 			#Convert to timecode in format ss.xx
-			localEnd=$(echo "scale=2; ($i - 2)/(24000/1001)" | bc)
+			localEnd=$(echo "scale=3; ($i - 2)/(24000/1001)" | bc)
 			echo $localEnd
 		fi
 	fi
@@ -72,7 +72,7 @@ for movie in *.mp4; do
 	for i in $(seq 1 $startRange); do
 		compCmds+="findMatch $i tests/start.jpg start\n"
 	done
-	starts=( $(echo $compCmds | parallel -u -j 8) )
+	starts=( $(echo $compCmds | parallel -k -u) )
 	total="${#starts[@]}"
 	adjustedStart="${starts[$(( $total-1 ))]}"
 
@@ -81,13 +81,13 @@ for movie in *.mp4; do
 	for i in $(seq $endRange $totalFrames); do 
 		compCmds+="findMatch $i tests/end.jpg end\n"
 	done
-	ends=( $(echo $compCmds | parallel -u -j 8) )
+	ends=( $(echo $compCmds | parallel -k -u) )
 	total="${#ends[@]}"
 	adjustedEnd="${ends[$(( $total-1 ))]}"
 
 	echo "     Start: $adjustedStart    End: $adjustedEnd"
 	#Clip out the segment we want
 	echo "Saving segmented clip..."
-	ffmpeg -loglevel panic -i "$movie" -ss $adjustedStart -to $adjustedEnd -c:v libx264 -crf 16 -tune animation -c:a copy -movflags faststart -y output/"$movie" && echo "Clip saved!"
+	ffmpeg -loglevel panic -i "$movie" -ss $adjustedStart -to $adjustedEnd -c:v libx264 -crf 16 -tune animation -level 41 -c:a copy -movflags faststart -y output/"$movie" && echo "Clip saved!"
 	echo
 done

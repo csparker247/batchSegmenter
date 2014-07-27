@@ -71,7 +71,7 @@ segmenter () {
 	echo "$forkedID::Start: $adjustedStart    End: $adjustedEnd"
 	echo "$forkedID::Saving segmented clip..."
 	#Clip out the segment we want
-	ffmpeg -loglevel panic -i "$movie" -ss $adjustedStart -to $adjustedEnd -c:v libx264 -crf 16 -tune animation -c:a copy -movflags faststart -y output/"$movie" && echo "$forkedID::Clip saved!" && rm -rf "$tempDir"
+	ffmpeg -loglevel panic -i "$movie" -ss $adjustedStart -to $adjustedEnd -c:v libx264 -crf 16 -tune animation -level 41 -c:a copy -movflags faststart -y output/"$movie" && echo "$forkedID::Clip saved!" && rm -rf "$tempDir"
 }
 
 export -f segmenter
@@ -80,6 +80,6 @@ for movie in *.mp4; do
 	filelist+="segmenter '$movie'\n"
 done
 
-echo "$filelist" | parallel -u -j 2
+echo "$filelist" | parallel -u
 
 

@@ -70,6 +70,6 @@ for movie in *.mp4; do
 
 	#Clip out the segment we want
 	echo "Saving segmented clip..."
-	ffmpeg -loglevel panic -i "$movie" -ss $adjustedStart -to $adjustedEnd -c:v libx264 -crf 16 -tune animation -c:a copy -movflags faststart -y output/"$movie" && echo "Clip saved!"
+	ffmpeg -loglevel panic -i "$movie" -ss $adjustedStart -to $adjustedEnd -c:v libx264 -crf 16 -tune animation -level 41 -c:a copy -movflags faststart -y output/"$movie" && echo "Clip saved!"
 	echo
 done
